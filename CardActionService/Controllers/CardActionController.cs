@@ -18,8 +18,8 @@ public class CardActionController : ControllerBase
         _cardService = cardService;
     }
 
-    [HttpGet(Name = "GetAllowedActions")]
-    public async Task<CardDetails?> Get(string userId, string cardNumber)
+    [HttpGet(Name = "GetCardAllowedActions")]
+    public async Task<CardAllowedActions?> Get(string userId, string cardNumber)
     {
         return await _cardService.GetCardDetails(userId, cardNumber);
     }
