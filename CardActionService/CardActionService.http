@@ -1,6 +1,6 @@
 @CardActionService_HostAddress = http://localhost:5071
 
-GET {{CardActionService_HostAddress}}/weatherforecast/
+GET {{CardActionService_HostAddress}}/cards/
 Accept: application/json
 
 ###
