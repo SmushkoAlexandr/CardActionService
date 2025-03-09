@@ -1,4 +1,4 @@
-using CardActionService.Models;
+﻿using CardActionService.Models;
 using CardActionService.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,19 +8,38 @@ namespace CardActionService.Controllers;
 [Route("api")]
 public class CardActionController : ControllerBase
 {
-    private readonly ILogger<CardActionController> _logger;
     private readonly ICardService _cardService;
 
 
-    public CardActionController(ILogger<CardActionController> logger, ICardService cardService)
+    public CardActionController(ICardService cardService)
     {
-        _logger = logger;
         _cardService = cardService;
-    }
+    }    
 
     [HttpGet(Name = "GetCardAllowedActions")]
-    public async Task<CardAllowedActions?> Get(string userId, string cardNumber)
+    [ProducesResponseType(typeof(BaseResponse<CardAllowedActions>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(BaseResponse<string>), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<BaseResponse<CardAllowedActions>>> Get(CardRequest request) 
     {
-        return await _cardService.GetCardDetails(userId, cardNumber);
+        var response = await _cardService.GetCardDetails(request);
+
+        if (!response.Success)
+        {
+            var errorResponse = new BaseResponse<CardAllowedActions>
+            {
+                Success = false,
+                Message = response.Message,
+                Data = null
+            };
+
+            if (response.Message == "Card details not found.")
+                return NotFound(errorResponse);
+            else
+                return BadRequest(errorResponse);
+        }
+
+        return Ok(response);
     }
 }

@@ -11,22 +11,28 @@ namespace CardActionService.Services
             _cardRepo = cardRepo;
         }
 
-        public async Task<CardAllowedActions?> GetCardDetails(string userId, string cardNumber)
+        public async Task<BaseResponse<CardAllowedActions>> GetCardDetails(CardRequest request)
         {
             try
             {
-                var cardDetails = await _cardRepo.GetCardDetails(userId, cardNumber);
+                var cardDetails = await _cardRepo.GetCardDetails(request.UserId, request.CardNumber);
 
                 if (cardDetails == null)
-                    return null;
+                    return BaseResponse<CardAllowedActions>.ErrorResponse("Card details not found.");
 
                 var card = new Card(cardDetails);
 
-                return new CardAllowedActions { CardNumber = cardDetails.CardNumber, AllowedActions = card.GetAllowedActions() };
+                var result = new CardAllowedActions
+                {
+                    CardNumber = cardDetails.CardNumber,
+                    AllowedActions = card.GetAllowedActions()
+                };
+
+                return BaseResponse<CardAllowedActions>.SuccessResponse(result);
             }
             catch (Exception ex)
             {
-                throw new Exception("Error retrieving card details.", ex);
+                return BaseResponse<CardAllowedActions>.ErrorResponse("An error occurred while retrieving card details.");
             }
         }
     }

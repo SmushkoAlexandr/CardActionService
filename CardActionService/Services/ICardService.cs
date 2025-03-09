@@ -4,6 +4,6 @@ namespace CardActionService.Services
 {
     public interface ICardService
     {
-        Task<CardAllowedActions?> GetCardDetails(string userId, string cardNumber);
+        Task<BaseResponse<CardAllowedActions>> GetCardDetails(CardRequest request);
     }
 }

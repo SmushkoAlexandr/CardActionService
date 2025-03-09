@@ -21,27 +21,25 @@ namespace CardActionService.Test
         [Test]
         public async Task GetCardDetails_Prepaid_Closed_Actions()
         {
-            var userId = "User1";
-            var cardNumber = "Card11";
+            var request = new CardRequest { UserId = "User1", CardNumber = "Card11" };
             _mockCardRepo
                 .Setup(repo => repo.GetCardDetails(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new CardDetails ("test", CardType.Prepaid, CardStatus.Closed, true));
-            var result = await _cardService.GetCardDetails(userId, cardNumber);
+            var result = await _cardService.GetCardDetails(request);
 
             var expectedActions = new List<CardAction> { CardAction.ACTION3, CardAction.ACTION4, CardAction.ACTION9 }; //order sensitive
 
-            Assert.AreEqual(expectedActions, result.AllowedActions, "Card actions should match expected actions.");
+            Assert.That(expectedActions, Is.EqualTo(result.Data.AllowedActions), "Card actions should match expected actions.");
         }
 
         [Test]
         public async Task GetCardDetails_Credit_Blocked_Actions()
         {
-            var userId = "User1";
-            var cardNumber = "Card11";
+            var request = new CardRequest { UserId = "User1", CardNumber = "Card11" };
             _mockCardRepo
                 .Setup(repo => repo.GetCardDetails(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new CardDetails("test", CardType.Credit, CardStatus.Blocked, true));
-            var result = await _cardService.GetCardDetails(userId, cardNumber);
+            var result = await _cardService.GetCardDetails(request);
 
             var expectedActionsWithPin = new List<CardAction>  //order sensitive
             { 
@@ -53,13 +51,13 @@ namespace CardActionService.Test
                 CardAction.ACTION6,
                 CardAction.ACTION7
             };
-            Assert.AreEqual(expectedActionsWithPin, result.AllowedActions, "Card actions should match expected actions.");
+            Assert.That(expectedActionsWithPin, Is.EqualTo(result.Data.AllowedActions), "Card actions should match expected actions.");
 
 
             _mockCardRepo
                 .Setup(repo => repo.GetCardDetails(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new CardDetails("test", CardType.Credit, CardStatus.Blocked, false));
-            result = await _cardService.GetCardDetails(userId, cardNumber);
+            result = await _cardService.GetCardDetails(request);
 
             var expectedActionsWithoutPin = new List<CardAction> //order sensitive
             {
@@ -69,7 +67,7 @@ namespace CardActionService.Test
                 CardAction.ACTION8,
                 CardAction.ACTION9
             };
-            Assert.AreEqual(expectedActionsWithoutPin, result.AllowedActions, "Card actions should match expected actions.");
+            Assert.That(expectedActionsWithoutPin, Is.EqualTo(result.Data.AllowedActions), "Card actions should match expected actions.");
         }
     }
 }
